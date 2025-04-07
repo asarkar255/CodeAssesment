@@ -1,0 +1,181 @@
+Rule 1: 
+Go through each and every rule on high priority.
+Don't remediate the code 
+Only Return a json with line and Rule No which is  matching 
+
+
+Example:
+input: MOVE 'XXXXXXXXX' TO text-001
+output: { "line" : "input: MOVE 'XXXXXXXXX' TO text-001" , "Rule": "Rule 4" }
+Apply this for all below Rules
+
+Rule 2:
+if DATA is declared with DATA:BEGIN OF XXXX OCCURS 0 WITH HEADER LINE, 
+example 1:
+Data declared with DATA:BEGIN OF XXXX OCCURS 0 WITH HEADER LINE( XXXX is dynamic variables name )
+DATA: BEGIN OF itab OCCURS 0 WITH HEADER LINE,   
+matnr TYPE matnr ,           
+vbeln TYPE vbeln_d,         
+END OF itab.
+
+
+Rule 3:
+IF select * is provided in the input ABAP code like below 
+Select * From mara
+Into corresponding fields of table imara[].
+
+
+
+search for all the fields from the table from which data fetched and only those fields should be get selected 
+
+Select * From mara
+Into corresponding fields of table imara[].
+example 
+Input ABAP code 
+Select * From mara
+Into corresponding fields of table imara[].
+
+Select * From lips
+Into corresponding fields of table ilips[]. 
+Loop AT ilips[].
+READ TABLE imara with key matnr = ilips-matnr.
+itab-mara = imara-matnr
+itab-vbeln = itab-vbeln.
+APPEND itab[].
+ENDLOOP.
+
+Output:
+*Select * From mara                                  "Commented By PwA  
+*Into corresponding fields of table imara[].
+*example 
+*Input ABAP code 
+*Select * From mara
+*Into corresponding fields of table imara[].
+
+*Select * From lips
+*Into corresponding fields of table ilips[]. 
+*Loop AT ilips[].
+*READ TABLE imara with key matnr = ilips-matnr.
+*itab-mara = imara-matnr
+*itab-vbeln = itab-vbeln.
+*APPEND itab[].
+*ENDLOOP.
+
+Based on 'Rule 2' imara[] declared as gt_mara
+
+Select matnr From mara                                  "Added By PwA  
+Into corresponding fields of table gt_mara.
+
+Select vbeln From lips                                   "Added By PwA
+Into corresponding fields of table gt_lips. 
+Loop AT gt_lips INTO gs_lips.
+READ TABLE mara with key matnr = gt_lips-matnr.
+gs_itab-mara = gs_mara-matnr
+gs_itab-vbeln = gs_lips-vbeln.
+APPEND gs_itab to gt_itab.
+ENDLOOP.
+
+Example:
+Input: 
+Select * From mara
+Into corresponding fields of table imara[].
+
+Select * From lips
+Into corresponding fields of table ilips[]. 
+Loop AT ilips[].
+READ TABLE imara with key matnr = ilips-matnr.
+itab-mara = imara-matnr
+itab-vbeln = itab-vbeln.
+APPEND itab[].
+ENDLOOP.
+output:
+*Select * From mara                              "Commented By PwA 
+*Into corresponding fields of table imara[].
+
+*Select * From lips                              "Commented By PwA 
+*Into corresponding fields of table ilips[]. 
+*Loop AT ilips[].
+*READ TABLE imara with key matnr = ilips-matnr.
+*itab-mara = imara-matnr
+*itab-vbeln = itab-vbeln.
+*APPEND itab[].
+*ENDLOOP.
+
+Select matnr From mara                           "Added By PwA
+Into corresponding fields of table gt_mara.
+
+Select vbeln From lips                           "Added By PwA
+Into corresponding fields of table gt_lips. 
+Loop AT gt_lips INTO gs_lips.                    "Added By PwA
+READ TABLE mara with key matnr = gt_lips-matnr.
+gs_itab-mara = gs_mara-matnr
+gs_itab-vbeln = gs_lips-vbeln.
+APPEND gs_itab to gt_itab.
+ENDLOOP.
+
+
+Rule 4:
+IF 'MOVE' statement found in code it should be replaced like below
+Example:
+input: MOVE 'XXXXXXXXX' TO text-001
+output: 
+*MOVE 'XXXXXXXXX' TO text-001   "Commented By PwA
+ text-001 = 'XXXXXXXXX'.        "Added By PwA
+input: MOVE ls_mara-matnr TO ls_lips-matnr.
+output:
+*MOVE ls_mara-matnr TO ls_lips-matnr.
+ls_lips-matnr = ls_mara-matnr.
+Rule 5:
+IF 'REFRESH' statement found in code it should be replaced with 'CLEAR' statement
+input: 
+REFRESH:X_XXXX.
+output: 
+*REFRESH:X_XXXX. "Commented By PwA
+CLEAR X_XXXX. "Added By PwA
+Rule 6:
+IF 'PARAMETERS' statement found in code like below 
+PARAMETERS: p_vbeln LIKE lips-vbeln.
+We should search the table 'lips' in this case and field 'vbeln' to get the data element of that field
+output should be:
+
+*PARAMETERS: X_vbeln LIKE lips-vbeln. "Commented By PwA
+PARAMETERS: X_vbeln TYPE vbeln_vl.    "Added By PwA
+
+Rule 7A:
+IF 'TABLES' statement is found then it should be replaced with work area declaration
+Example 1:
+input: 
+TABLES: lips,mara.
+output:
+*TABLES: lips,mara.                   "Commented By PwA
+DATA gs_lips TYPE lips.               "Added By PwA
+DATA gs_mara TYPE mara.               "Added By PwA
+
+Rule 7B: 
+This rule is continuation of previous rule 'Rule 7A'.
+If 'SELECT-OPTIONS' statement found in code like below 
+SELECT-OPTIONS: X_matnr FOR mara-matnr.
+We should replace it with mara workare matnr field
+example:
+input:
+SELECT-OPTIONS: X_matnr FOR mara-matnr.
+output:
+*SELECT-OPTIONS: X_matnr FOR mara-matnr. "Commented By PwA
+SELECT-OPTIONS: X_matnr FOR gs_mara-matnr. "Added By PwA
+
+Rule 7C:
+After 'Rule 7A'  if Data variables are declared with reference of TABLES declared transform code like below Example 
+Example:
+input:
+TABLES: lips,mara.
+DATA lv_ersda TYPE mara-ersda.
+DATA lv_vbeln TYPE lips-vbeln.
+
+We should search the table  in this case and field  to get the data element of that field
+output should be:
+*TABLES: lips,mara.              "Commented By PwA
+*DATA lv_ersda TYPE mara-ersda.  "Commented By PwA
+*DATA lv_vbeln TYPE lips-vbeln.  "Commented By PwA
+
+DATA lv_ersda TYPE ersda.         "Added By PwA
+DATA lv_vbeln TYPE vbeln_vl.        "Added By PwA
