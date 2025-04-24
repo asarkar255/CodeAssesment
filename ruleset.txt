@@ -11,127 +11,153 @@ Apply this for all below Rules
 
 Rule 2:
 if DATA is declared with DATA:BEGIN OF XXXX OCCURS 0 WITH HEADER LINE, 
+always transform it to TYPES:BEGIN OF itab, add internal table declaration with type 
+if with headr line specified then add 
+work area declarations with declared type 
 example 1:
 Data declared with DATA:BEGIN OF XXXX OCCURS 0 WITH HEADER LINE( XXXX is dynamic variables name )
-DATA: BEGIN OF itab OCCURS 0 WITH HEADER LINE,   
+*DATA: BEGIN OF itab OCCURS 0 WITH HEADER LINE,   "Commented By PwA        
+*matnr TYPE matnr ,           
+*vbeln TYPE vbeln_d,         
+*END OF itab.
+we are replacing DATA:BEGIN OF XXXX OCCURS 0 WITH HEADER LINE with TYPES: BEGIN OF itab , 
+TYPES: BEGIN OF ty_itab ,                            "Added By PwA
 matnr TYPE matnr ,           
 vbeln TYPE vbeln_d,         
-END OF itab.
+END OF ty_itab.
+As With Header line is specified 
+declaring internal table
+DATA gt_itab TYPE STANDARD TABLE OF TY_ITAB
+Declare Workarea
+DATA gs_itab TYPE TY_ITAB
 
+example 2:
+input: 
+DATA: BEGIN OF xmard OCCURS 0.
+        INCLUDE STRUCTURE mard.
+DATA: END OF xmard.
 
-Rule 3:
-IF select * is provided in the input ABAP code like below 
-Select * From mara
-Into corresponding fields of table imara[].
+output:
 
+*DATA: BEGIN OF xmard OCCURS 0.                "Commented By PwA  Rule 2
+        INCLUDE STRUCTURE mard.
+*DATA: END OF xmard.
 
+TYPES: BEGIN OF ty_xmard.                        "Added By PwA  Rule 2
+        INCLUDE STRUCTURE mard.
+TYPES: END OF ty_xmard.
+DATA: gt_xmard TYPE STANDARD TABLE OF ty_xmard.  "Added By PwA  Rule 2
+DATA: gs_xmard TYPE ty_xmard.                    "Added By PwA  Rule 2
 
-search for all the fields from the table from which data fetched and only those fields should be get selected 
+example 3:
+input: 
+DATA: BEGIN OF xfinal OCCURS 0,
+       bukrs like t001-bukrs,
+       belnr like bseg-belnr,
+       gjahr like bseg-gjahr,
+       buzei like bseg-buzei,
+      END OF xfinal.
 
-Select * From mara
-Into corresponding fields of table imara[].
-example 
-Input ABAP code 
-Select * From mara
-Into corresponding fields of table imara[].
+output:
+*DATA: BEGIN OF xfinal OCCURS 0,   "Commented By PwA  Rule 2
+*       bukrs like t001-bukrs,
+*       belnr like bseg-belnr,
+*       gjahr like bseg-gjahr,
+*       buzei like bseg-buzei,
+*      END OF xfinal.
 
-Select * From lips
-Into corresponding fields of table ilips[]. 
-Loop AT ilips[].
-READ TABLE imara with key matnr = ilips-matnr.
-itab-mara = imara-matnr
-itab-vbeln = itab-vbeln.
-APPEND itab[].
-ENDLOOP.
+TYPES: BEGIN OF ty_xfinal,    "Added By PwA  Rule 2
+       bukrs type bukrs,
+       belnr type belnr_d,
+       gjahr type gjahr,
+       buzei type buzei ,
+      END OF ty_xfinal.
+
+DATA: gt_xfinal TYPE STANDARD TABLE OF ty_xfinal.  "Added By PwA  Rule 2
+DATA: gs_xfinal TYPE ty_xfinal.                    "Added By PwA  Rule 2
+
+Rule 3: 
+IF select * is provided in the input ABAP code like below.
+search for all the fields from the table from which data fetched and only those fields should be get selected.
+From Rule 2 relevant declared internal table and workarea should be used.
+Internal table and where clause variables must be escaped usibg '@'
+
+Example 1:
+Input:
+Select *
+  FROM bseg 
+  INTO TABLE ibseg[]
+  WHERE belnr IN s_belnr[].
 
 Output:
-*Select * From mara                                  "Commented By PwA  
-*Into corresponding fields of table imara[].
-*example 
-*Input ABAP code 
-*Select * From mara
-*Into corresponding fields of table imara[].
+*Select *                     "Commented By PwA  
+*  FROM bseg 
+*  INTO TABLE ibseg[]
+*  WHERE belnr IN s_belnr[].  
 
-*Select * From lips
-*Into corresponding fields of table ilips[]. 
-*Loop AT ilips[].
-*READ TABLE imara with key matnr = ilips-matnr.
-*itab-mara = imara-matnr
-*itab-vbeln = itab-vbeln.
-*APPEND itab[].
-*ENDLOOP.
+Select bukrs,belnr,koart 
+  FROM bseg
+  INTO CORRESPONDING FIELDS OF TABLE @gt_ibseg
+  WHERE belnr IN @s_belnr.
 
-Based on 'Rule 2' imara[] declared as gt_mara
+Example 2:
+Input:
 
-Select matnr From mara                                  "Added By PwA  
-Into corresponding fields of table gt_mara.
+Select *
+  FROM bseg 
+  INTO TABLE ibkpf[]
+  WHERE belnr IN s_belnr[].
+IF ibkpf[] IS NOT INITIAL.
+Select *
+  FROM bseg 
+  INTO TABLE ibseg[]
+  FOR ALL ENTRIES IN ibkpf[]
+  WHERE belnr IN s_belnr[].
+ENDIF.
+Output:
+*Select *                       "Commented By PwA
+*  FROM bseg 
+*  INTO TABLE ibkpf[]
+*  WHERE belnr IN s_belnr[].
+*IF ibkpf[] IS NOT INITIAL.
+*Select *                        "Commented By PwA
+*  FROM bseg 
+*  INTO TABLE ibseg[]
+*  FOR ALL ENTRIES IN ibkpf[]
+*  WHERE belnr IN s_belnr[].
+*ENDIF.
 
-Select vbeln From lips                                   "Added By PwA
-Into corresponding fields of table gt_lips. 
-Loop AT gt_lips INTO gs_lips.
-READ TABLE mara with key matnr = gt_lips-matnr.
-gs_itab-mara = gs_mara-matnr
-gs_itab-vbeln = gs_lips-vbeln.
-APPEND gs_itab to gt_itab.
-ENDLOOP.
-
-Example:
-Input: 
-Select * From mara
-Into corresponding fields of table imara[].
-
-Select * From lips
-Into corresponding fields of table ilips[]. 
-Loop AT ilips[].
-READ TABLE imara with key matnr = ilips-matnr.
-itab-mara = imara-matnr
-itab-vbeln = itab-vbeln.
-APPEND itab[].
-ENDLOOP.
-output:
-*Select * From mara                              "Commented By PwA 
-*Into corresponding fields of table imara[].
-
-*Select * From lips                              "Commented By PwA 
-*Into corresponding fields of table ilips[]. 
-*Loop AT ilips[].
-*READ TABLE imara with key matnr = ilips-matnr.
-*itab-mara = imara-matnr
-*itab-vbeln = itab-vbeln.
-*APPEND itab[].
-*ENDLOOP.
-
-Select matnr From mara                           "Added By PwA
-Into corresponding fields of table gt_mara.
-
-Select vbeln From lips                           "Added By PwA
-Into corresponding fields of table gt_lips. 
-Loop AT gt_lips INTO gs_lips.                    "Added By PwA
-READ TABLE mara with key matnr = gt_lips-matnr.
-gs_itab-mara = gs_mara-matnr
-gs_itab-vbeln = gs_lips-vbeln.
-APPEND gs_itab to gt_itab.
-ENDLOOP.
-
+Select bukrs,belnr                                   "Added By PwA
+  FROM bkpf
+  INTO CORRESPONDING FIELDS OF TABLE @gt_ibkpf
+  WHERE belnr IN @s_belnr[].
+IF gt_ibkpf IS NOT INITIAL.
+Select bukrs,belnr,koart                              "Added By PwA
+  FROM bseg
+  INTO CORRESPONDING FIELDS OF TABLE @gt_ibseg
+  WHERE belnr IN @s_belnr.
+ENDIF.
 
 Rule 4:
-IF 'MOVE' statement found in code it should be replaced like below
+IF 'MOVE' statement found in code it should be always replaced with '='
 Example:
-input: MOVE 'XXXXXXXXX' TO text-001
-output: 
-*MOVE 'XXXXXXXXX' TO text-001   "Commented By PwA
- text-001 = 'XXXXXXXXX'.        "Added By PwA
+
 input: MOVE ls_mara-matnr TO ls_lips-matnr.
 output:
-*MOVE ls_mara-matnr TO ls_lips-matnr.
-ls_lips-matnr = ls_mara-matnr.
+*MOVE ls_mara-matnr TO ls_lips-matnr.   "Commented By PwA 
+ls_lips-matnr = ls_mara-matnr.          "Added By PwA
+
+input :
+
+MOVE 'K - Consignment vendor' TO text004. 
+
+output:
+*MOVE 'K - Consignment vendor' TO text004.  "Commented By PwA 
+text004 = 'K - Consignment vendor'.         "Added By PwA
+
 Rule 5:
-IF 'REFRESH' statement found in code it should be replaced with 'CLEAR' statement
-input: 
-REFRESH:X_XXXX.
-output: 
-*REFRESH:X_XXXX. "Commented By PwA
-CLEAR X_XXXX. "Added By PwA
+IF 'REFRESH' statement found in code it should be always replaced with 'CLEAR' statement
+
 Rule 6:
 IF 'PARAMETERS' statement found in code like below 
 PARAMETERS: p_vbeln LIKE lips-vbeln.
@@ -179,3 +205,160 @@ output should be:
 
 DATA lv_ersda TYPE ersda.         "Added By PwA
 DATA lv_vbeln TYPE vbeln_vl.        "Added By PwA
+
+Rule 8:
+
+If Variable declared with Keyword 'LIKE' always replace it with 'TYPE' keyword and search data element of reference 
+field and use the same 
+Example 1:
+input:
+DATA ls_mara LIKE mara.
+output:
+*DATA ls_mara LIKE mara. "Commented By PwA
+
+DATA ls_mara TYPE mara. "Added By PwA
+
+Example 2: 
+input:
+DATA lv_vbeln LIKE lips-vbeln.
+output:
+*DATA lv_vbeln LIKE lips-vbeln. "Commented By PwA
+DATA lv_vbeln TYPR vbeln_vl.    "Added By PwA
+
+Rule 9:
+
+If keyword 'MOVE-CORRESPONDING' found in the code always replace it with 'CORRESPONDING #( )'.
+Example 1:
+input:
+DATA ls_bkpf TYPE BKPF,
+     ls_bseg TYPE BSEG.
+
+MOVE-CORRESPONDING ls_bkpf TO ls_bseg.
+
+Output:
+DATA ls_bkpf TYPE BKPF,
+     ls_bseg TYPE BSEG.
+
+*MOVE-CORRESPONDING ls_bkpf TO ls_bseg.  "Commented By PwA
+ ls_bseg = CORRESPONDING #( ls_bkpf ).   "Added By PwA
+
+RUle 10:
+
+If keyword 'DESCRIBE TABLE' found in the code always replace it with 'lines( )'.
+Example 1:
+input:
+DATA:lt_mara TYPE STANDARD TABLE OF mara,
+     lv_line TYPE i.
+
+DESCRIBE TABLE lt_mara LINES lv_line.
+output:
+DATA:lt_mara TYPE STANDARD TABLE OF mara,
+     lv_line TYPE i.
+
+*DESCRIBE TABLE lt_mara LINES lv_line. "Commented By PwA
+ lv_line = lines(  lt_mara ).          "Added By PwA
+
+Rule 11:
+If TABLE 'KONV' used in any selection Always Replace it with 'V_KONV'.
+Example 1:
+input:
+SELECT knumv,
+       kposn
+  FROM KONV 
+  INTO TABLE ...
+output:
+*SELECT knumv,   "Commented By PwA
+*       kposn
+*  FROM KONV 
+*  INTO TABLE ...
+
+
+SELECT knumv,
+       kposn
+  FROM V_KONV    "Added By PwA
+  INTO TABLE ...
+     
+
+
+Rule 12:
+
+IF there is not SORT on the TABLE after Database selection Add KEYWORD 'ORDER BY'.
+Example 1:
+Input:
+SELECT knumv 
+       kposn  
+       stunr
+       zahek
+ FROM  KONV
+ INTO TABLE lt_KONV 
+ WHERE KNUMV IN S_KNUMV.
+ IF SY_SUBRC = 0.
+  
+ ENDIF.
+
+ output:
+ *SELECT knumv     "Commented By PwA
+ *      kposn  
+ *      stunr
+ *      zahek
+ *FROM  KONV
+ *INTO TABLE lt_KONV 
+ *WHERE KNUMV IN S_KNUMV.
+ *IF SY_SUBRC = 0.
+  
+ *ENDIF.
+
+ SELECT knumv     
+       kposn  
+       stunr
+       zahek
+ FROM  V_KONV                          "Added By PwA
+ INTO TABLE lt_KONV 
+ WHERE KNUMV IN S_KNUMV
+ ORDER BY knumv kposn stunr zahek.     "Added By PwA
+ IF SY_SUBRC = 0.
+  
+ ENDIF.
+In Case of 'FOR ALL ENTRIES' in the Database table selection 
+ 'ORDER BY' Can not be used, Use Keyword 'SORT' .
+ Example 2:
+ input :
+
+SELECT knumv 
+       kposn  
+       stunr
+       zahek
+ FROM  KONV
+ INTO TABLE lt_KONV 
+ FOR ALL ENTRIES  IN lt_final
+ WHERE stunr = lt_final-stunr
+   AND KNUMV IN S_KNUMV.
+ IF SY_SUBRC = 0.
+  
+ ENDIF.
+
+output:
+*SELECT knumv                           "Commented By PwA
+*       kposn  
+*       stunr
+*       zahek
+* FROM  KONV
+* INTO TABLE lt_KONV 
+* FOR ALL ENTRIES  IN lt_final
+* WHERE stunr = lt_final-stunr
+*   AND KNUMV IN S_KNUMV.
+* IF SY_SUBRC = 0.
+*  " No Sort done after selection 
+* ENDIF.
+SELECT knumv                               
+       kposn  
+       stunr
+       zahek
+ FROM  V_KONV                         "Added By PwA
+ INTO TABLE lt_KONV 
+ FOR ALL ENTRIES  IN lt_final
+ WHERE stunr = lt_final-stunr
+   AND KNUMV IN S_KNUMV.
+ IF SY_SUBRC = 0.
+  SORT lt_KONV BY knumv kposn stunr zahek.    "Added By PwA
+ ENDIF.
