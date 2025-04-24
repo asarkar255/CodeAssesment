@@ -74,10 +74,3 @@ async def remediate_code(request_body: RequestBody):
     return {"result": result}
 
 
-
-# add_routes(app, chain, path="/remediate_code")
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="localhost", port=8000)
