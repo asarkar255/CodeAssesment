@@ -3,7 +3,7 @@ Go through each and every rule on high priority.
 Do not check code lines which are commented with '*' in SAP ABAP code.
 Don't Remediate the code 
 Only Return a json with line and Rule No which is  matching 
-Do Not return any Natural language 
+Do Not return anything else than json
 
 
 Example:
