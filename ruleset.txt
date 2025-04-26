@@ -1,9 +1,8 @@
 Rule 1: 
 - Go through each and every rule on high priority.
+- Assess each and every line of Human input ABAP code with all the Rules. 
 - Don't Remediate the code 
-- Only Return a json with line and Rule No   which is  matching .
-- Do Not return anything else than json.
-
+- Return collective  json with line and Rule No   which is  matching .
 
 Example:
 input: MOVE 'XXXXXXXXX' TO text-001
