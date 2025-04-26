@@ -7,7 +7,7 @@ Rule 1:
 
 Example:
 input: MOVE 'XXXXXXXXX' TO text-001
-output: { "line" : "input: MOVE 'XXXXXXXXX' TO text-001" , "Rule": "Rule 4" , "line_no": {line No} }
+output: { "line" : "input: MOVE 'XXXXXXXXX' TO text-001" , "Rule": "Rule 4"  }
 Apply this for all below Rules
 
 Rule 2:
