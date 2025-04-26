@@ -1,8 +1,10 @@
 Rule 1: 
-Go through each and every rule on high priority.
-Don't Remediate the code 
-Only Return a json with line , Rule No and line No  which is  matching 
-Do Not return anything else than json
+- Go through each and every rule on high priority.
+- Don't Remediate the code 
+- Only Return a json with line , Rule No and line No  which is  matching .
+- After first line Every '\n' adds a line to the "line No".
+- If you cant find the "line No" return blank in "line No".
+- Do Not return anything else than json.
 
 
 Example:
