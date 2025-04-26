@@ -46,7 +46,7 @@ prompt_template = ChatPromptTemplate.from_messages([
 # # # 2. Create model
 llm = ChatAnthropic(
     model="claude-3-7-sonnet-20250219",
-    temperature=1,
+    temperature=0,
     max_tokens=20000,
     timeout=None,
     api_key=SECRET_KEY,
