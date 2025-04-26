@@ -1,9 +1,7 @@
 Rule 1: 
 - Go through each and every rule on high priority.
 - Don't Remediate the code 
-- Only Return a json with line , Rule No and line No  which is  matching .
-- After first line Every '\n' adds a line to the "line No".
-- If you cant find the "line No" return blank in "line No".
+- Only Return a json with line and Rule No   which is  matching .
 - Do Not return anything else than json.
 
 
@@ -15,7 +13,7 @@ Apply this for all below Rules
 Rule 2:
 If this rule is detected
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 2" , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 2"  }
 if DATA is declared with DATA:BEGIN OF XXXX OCCURS 0 WITH HEADER LINE, 
 always transform it to TYPES:BEGIN OF itab, add internal table declaration with type 
 if with headr line specified then add 
@@ -85,9 +83,9 @@ DATA: gs_xfinal TYPE ty_xfinal.                    "Added By PwA  Rule 2
 Rule 3: 
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 3" , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 3"  }
 {Error Line} is the detected line.
-{line No} is the Number of line at which the rule detected.
+
 IF select * is provided in the input ABAP code like below.
 search for all the fields from the table from which data fetched and only those fields should be get selected.
 From Rule 2 relevant declared internal table and workarea should be used.
@@ -152,9 +150,9 @@ ENDIF.
 Rule 4:
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 4" , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 4"  }
 {Error Line} is the detected line.
-{line No} is the Number of line at which the rule detected.
+
 IF 'MOVE' statement found in code it should be always replaced with '='
 Example:
 
@@ -174,17 +172,17 @@ text004 = 'K - Consignment vendor'.         "Added By PwA
 Rule 5:
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 5"  , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 5"   }
 {Error Line} is the detected line.
-{line No} is the Number of line at which the rule detected.
+
 IF 'REFRESH' statement found in code it should be always replaced with 'CLEAR' statement
 
 Rule 6:
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 6" , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 6"  }
 {Error Line} is the detected line.
-{line No} is the Number of line at which the rule detected.
+
 IF 'PARAMETERS' statement found in code like below 
 PARAMETERS: p_vbeln LIKE lips-vbeln.
 We should search the table 'lips' in this case and field 'vbeln' to get the data element of that field
@@ -196,9 +194,9 @@ PARAMETERS: X_vbeln TYPE vbeln_vl.    "Added By PwA
 Rule 7A:
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 7A" , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 7A"  }
 {Error Line} is the detected line.
-{line No} is the Number of line at which the rule detected.
+
 IF 'TABLES' statement is found then it should be replaced with work area declaration
 Example 1:
 input: 
@@ -211,9 +209,9 @@ DATA gs_mara TYPE mara.               "Added By PwA
 Rule 7B: 
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 7B" , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 7B"  }
 {Error Line} is the detected line.
-{line No} is the Number of line at which the rule detected.
+
 This rule is continuation of previous rule 'Rule 7A'.
 If 'SELECT-OPTIONS' statement found in code like below 
 SELECT-OPTIONS: X_matnr FOR mara-matnr.
@@ -228,9 +226,9 @@ SELECT-OPTIONS: X_matnr FOR gs_mara-matnr. "Added By PwA
 Rule 7C:
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 7C" , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 7C"  }
 {Error Line} is the detected line.
-{line No} is the Number of line at which the rule detected.
+
 After 'Rule 7A'  if Data variables are declared with reference of TABLES declared transform code like below Example 
 Example:
 input:
@@ -250,9 +248,9 @@ DATA lv_vbeln TYPE vbeln_vl.        "Added By PwA
 Rule 8:
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 8"  , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 8"   }
 {Error Line} is the detected line.
-{line No} is the Number of line at which the rule detected.
+
 If Variable declared with Keyword 'LIKE' always replace it with 'TYPE' keyword and search data element of reference 
 field and use the same 
 Example 1:
@@ -275,9 +273,9 @@ DATA lv_vbeln TYPR vbeln_vl.    "Added By PwA
 Rule 9:
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 9"  , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 9"   }
 {Error Line} is the detected line.
-{line No} is the Number of line at which the rule detected.
+
 If keyword 'MOVE-CORRESPONDING' found in the code always replace it with 'CORRESPONDING #( )'.
 Example 1:
 input:
@@ -296,9 +294,9 @@ DATA ls_bkpf TYPE BKPF,
 RUle 10:
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 10" , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 10"  }
 {Error Line} is the detected line.
-{line No} is the Number of line at which the rule detected.
+
 If keyword 'DESCRIBE TABLE' found in the code always replace it with 'lines( )'.
 Example 1:
 input:
@@ -316,9 +314,9 @@ DATA:lt_mara TYPE STANDARD TABLE OF mara,
 Rule 11:
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 11" , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 11"  }
 {Error Line} is the detected line.
-{line No} is the Number of line at which the rule detected.
+
 If TABLE 'KONV' used in any selection Always Replace it with 'V_KONV'.
 Example 1:
 input:
@@ -343,9 +341,9 @@ SELECT knumv,
 Rule 12:
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
-output: { "line" : {Error Line}, "Rule": "Rule 12" , "line_no": {line No} }
+output: { "line" : {Error Line}, "Rule": "Rule 12"  }
 {Error Line} is the detected line.
-{line No} is the Number of line at which the rule detected.
+
 IF there is not SORT on the TABLE after Database selection Add KEYWORD 'ORDER BY'.
 Example 1:
 Input:
