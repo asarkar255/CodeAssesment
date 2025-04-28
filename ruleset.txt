@@ -3,7 +3,7 @@ Rule 1:
 - Assess each and every line of  input ABAP code with all the Rules. 
 - Don't Remediate the code 
 - Return collective  json with line and Rule No   which is  matching .
-
+- Dont return any natural language 
 Example:
 input: MOVE 'XXXXXXXXX' TO text-001
 output: { "line" : "input: MOVE 'XXXXXXXXX' TO text-001" , "Rule": "Rule 4"  }
