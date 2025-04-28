@@ -34,7 +34,7 @@ vectorstore = Chroma.from_documents(documents=texts, embedding=OpenAIEmbeddings(
 # Retrieve and generate using the relevant snippets 
 retriever = vectorstore.as_retriever()
 #1. Create prompt template
-system_template = "Act as an expert SAP ECC to SAP S4 HANA code remediator,return only Remediated Code,use context: {context}"
+system_template = "You are an SAP ABAP Remediation Assistant ,Asess Code,use context: {context}"
 
 #system_template = "Act as an expert SAP ECC to SAP S4 HANA code remediator,return only Remediated Code"
 prompt_template = ChatPromptTemplate.from_messages([

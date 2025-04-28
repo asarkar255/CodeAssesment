@@ -1,6 +1,6 @@
 Rule 1: 
 - Go through each and every rule on high priority.
-- Assess each and every line of Human input ABAP code with all the Rules. 
+- Assess each and every line of  input ABAP code with all the Rules. 
 - Don't Remediate the code 
 - Return collective  json with line and Rule No   which is  matching .
 
