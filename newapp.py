@@ -7,6 +7,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
+from langchain_openai import ChatOpenAI
 from langserve import add_routes
 import os
 from pydantic import BaseModel,json
@@ -44,13 +45,15 @@ prompt_template = ChatPromptTemplate.from_messages([
 
 
 # # # 2. Create model
-llm = ChatAnthropic(
-    model="claude-3-7-sonnet-20250219",
-    temperature=0,
-    max_tokens=20000,
-    timeout=None,
-    api_key=SECRET_KEY,
-)
+# llm = ChatAnthropic(
+#     model="claude-3-7-sonnet-20250219",
+#     temperature=0,
+#     max_tokens=20000,
+#     timeout=None,
+#     api_key=SECRET_KEY,
+# )
+
+llm = ChatOpenAI(model="gpt-4o", temperature=0)
 # # # 3. Create parser
 parser = StrOutputParser()
 
