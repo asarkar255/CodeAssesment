@@ -1405,29 +1405,33 @@ Summary Table:
 | Tagging | Always include Rule Number in comments |
 
 ---
-Rule 24: Comment Out Unused DATA, INTERNAL TABLES, FIELD SYMBOLS, and WORK AREAS
+
+Rule 24: Comment Out Unused DATA, INTERNAL TABLES, FIELD SYMBOLS, WORK AREAS, CONSTANTS, and TYPES
 If this rule is detected 
 Do Not Remediate Code return Output Like below line.
 output: { "line" : {Error Line}, "Rule": "Rule 24"   }
 {Error Line} is the detected line.
 Description:
-- In ABAP programs, any declared `DATA`, `FIELD-SYMBOLS`, `CONSTANTS`, `TYPES`, internal tables, or work areas 
-  that are not used anywhere in the program should be commented out.
-- This improves readability, reduces memory footprint, and helps avoid confusion in code maintenance and review.
-- The check should be based on static usage in the program (excluding dynamic usage or field-symbol dereferencing).
+- In ABAP programs, any declared `DATA`, `FIELD-SYMBOLS`, `CONSTANTS`, `TYPES`, internal tables, or work areas that are not used anywhere in the program should be commented out.
+- This helps improve code readability, reduce memory usage, and avoid confusion during code reviews or refactoring.
+- The check must be based on static program analysis. Dynamic references (e.g., using `ASSIGN`, `FIELD-SYMBOLS`, macro expansions) should be handled conservatively or optionally excluded.
 
 Best Practices:
-- Detect all declarations that are not statically referenced in:
-  - Executable statements
-  - Control logic (IF, CASE, LOOP, READ, etc.)
-  - Method/function/module calls
-- Comment out these unused declarations with a clear tag.
+- Apply static analysis to detect unused declarations. Consider declarations unused if:
+  - They are never assigned, read, looped over, modified, or passed in any executable statement
+  - They do not appear in any control structure, such as IF, LOOP, CASE, etc.
+  - They are not referenced in function/method calls or exported/imported from memory
+- Types (TYPES) and constants (CONSTANTS) must be commented out if:
+  - The type is not used in any declared variable or structure
+  - The constant is not used in any statement
+- Comment all unused declarations with a consistent and searchable tag:
+  "Commented By PwA  Rule 24"
 
 Example 1: Unused Local Variable
 
 Input:
 DATA lv_matnr TYPE matnr.
-" No usage in code
+No usage in code
 
 Output:
 *DATA lv_matnr TYPE matnr.                      "Commented By PwA  Rule 24
@@ -1436,7 +1440,7 @@ Example 2: Unused Internal Table
 
 Input:
 DATA lt_kna1 TYPE STANDARD TABLE OF kna1.
-" Not used anywhere
+Not used anywhere
 
 Output:
 *DATA lt_kna1 TYPE STANDARD TABLE OF kna1.      "Commented By PwA  Rule 24
@@ -1445,7 +1449,7 @@ Example 3: Unused FIELD-SYMBOLS
 
 Input:
 FIELD-SYMBOLS <fs_kna1> TYPE kna1.
-" Not assigned or dereferenced
+Not assigned or dereferenced
 
 Output:
 *FIELD-SYMBOLS <fs_kna1> TYPE kna1.             "Commented By PwA  Rule 24
@@ -1454,26 +1458,55 @@ Example 4: Unused Work Area
 
 Input:
 DATA ls_mara TYPE mara.
-" Not referenced anywhere
+Not referenced anywhere
 
 Output:
 *DATA ls_mara TYPE mara.                        "Commented By PwA  Rule 24
 
-Example 5: Used Variables (no change)
+Example 5: Unused CONSTANTS
+
+Input:
+CONSTANTS c_status TYPE char1 VALUE 'X'.
+Constant never used in code
+
+Output:
+*CONSTANTS c_status TYPE char1 VALUE 'X'.       "Commented By PwA  Rule 24
+
+Example 6: Unused TYPE Declaration
+
+Input:
+TYPES: BEGIN OF ty_customer,
+         kunnr TYPE kunnr,
+         name1 TYPE name1,
+       END OF ty_customer.
+Type never referenced in code
+
+Output:
+*TYPES: BEGIN OF ty_customer,                   "Commented By PwA  Rule 24
+*         kunnr TYPE kunnr,
+*         name1 TYPE name1,
+*       END OF ty_customer.
+
+Example 7: Used Variable (No Change)
 
 Input:
 DATA lv_matnr TYPE matnr.
 lv_matnr = '1000001'.
+Usage detected — do not comment
 
-(No change needed — variable is used)
+Output:
+(No change needed)
 
 Summary Table:
 
-| Scenario | Action |
-|:---------|:-------|
-| Variable/Table/FS declared but never used | Comment out with tag |
-| Variable is used in code | Leave intact |
-| Dynamic usage or macro expansion | Should be handled with caution or optionally excluded |
+| Scenario                                   | Action                                  |
+|--------------------------------------------|------------------------------------------|
+| DATA, FIELD-SYMBOLS, TYPES, CONSTANTS, internal tables/work areas declared but never used | Comment out with tag |
+| Variable or object is referenced or assigned in code | Leave intact |
+| Usage only via macros/dynamic access | Exclude or handle with caution |
+| Field-symbol not assigned/dereferenced | Comment out with tag |
+| Type declared but not used in any data structure | Comment out with tag |
+| Constant declared but not referenced | Comment out with tag |
 | Commenting | Always add "Commented By PwA  Rule 24" tag |
 
 
