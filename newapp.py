@@ -60,6 +60,8 @@ parser = StrOutputParser()
 # # # 4. Create chain
 # chain = prompt_template | llm | parser
 chain = ( {"context": retriever , "text": RunnablePassthrough()} | prompt_template | llm | parser )
+
+
 # 4. App definition
 app = FastAPI(
   title="LangChain Server",
@@ -76,4 +78,7 @@ async def remediate_code(request_body: RequestBody):
     result =  chain.invoke(request_body.text)
     return {"result": result}
 
+if __name__ == "__main__":
+    import uvicorn
 
+    uvicorn.run(app, host="localhost", port=8000)
