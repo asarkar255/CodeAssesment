@@ -1509,6 +1509,296 @@ Summary Table:
 | Constant declared but not referenced | Comment out with tag |
 | Commenting | Always add "Commented By PwA  Rule 24" tag |
 
+---
+Rule 25: Replace DIVIDE and MULTIPLY Statements with Arithmetic Expressions
+If this rule is detected 
+Do Not Remediate Code return Output Like below line.
+output: { "line" : {Error Line}, "Rule": "Rule 25"   }
+{Error Line} is the detected line.
+Description:
+- In ABAP programs, the usage of DIVIDE and MULTIPLY statements is considered outdated and less readable.
+- Use direct assignment (=) with arithmetic operators (*, /) instead, which is more concise and in line with modern ABAP standards.
+- Replacing these statements improves code clarity and simplifies maintenance.
+
+Best Practices:
+- Identify any use of the following procedural arithmetic commands:
+  - DIVIDE <val1> BY <val2>.
+  - DIVIDE <val1> BY <val2> INTO <target>.
+  - MULTIPLY <val1> BY <val2>.
+  - MULTIPLY <val1> BY <val2> INTO <target>.
+- Replace these with direct arithmetic expressions:
+  - <val1> = <val1> / <val2>.
+  - <target> = <val1> / <val2>.
+  - <val1> = <val1> * <val2>.
+  - <target> = <val1> * <val2>.
+- Avoid unnecessary verbosity by using standard mathematical operators in assignment statements.
+
+Example 1: DIVIDE with Overwrite
+
+Input:
+DIVIDE lv_total BY lv_count.
+
+Output:
+lv_total = lv_total / lv_count.                "Remediated By PwA  Rule 25
+
+Example 2: DIVIDE INTO a Target Variable
+
+Input:
+DIVIDE lv_total BY lv_count INTO lv_avg.
+
+Output:
+lv_avg = lv_total / lv_count.                  "Remediated By PwA  Rule 25
+
+Example 3: MULTIPLY with Overwrite
+
+Input:
+MULTIPLY lv_net BY lv_rate.
+
+Output:
+lv_net = lv_net * lv_rate.                     "Remediated By PwA  Rule 25
+
+Example 4: MULTIPLY INTO a Target Variable
+
+Input:
+MULTIPLY lv_length BY lv_width INTO lv_area.
+
+Output:
+lv_area = lv_length * lv_width.                "Remediated By PwA  Rule 25
+
+Example 5: Already in Recommended Format (No Change)
+
+Input:
+lv_area = lv_length * lv_width.
+
+Output:
+(No change needed — expression already follows best practice)
+
+Summary Table:
+
+| Scenario                                          | Action                                      |
+|--------------------------------------------------|---------------------------------------------|
+| DIVIDE statement used with overwrite             | Replace with / in assignment form           |
+| DIVIDE ... INTO ... used                         | Replace with / assignment to target         |
+| MULTIPLY statement used with overwrite           | Replace with * in assignment form           |
+| MULTIPLY ... INTO ... used                       | Replace with * assignment to target         |
+| Already using = with * or /                      | Leave unchanged                             |
+| Commenting or conversion tag                     | Add "Remediated By PwA  Rule 25"            |
+---
+
+
+Rule 26: Remove or Comment Out BREAK-POINT Statements from Production Code
+If this rule is detected 
+Do Not Remediate Code return Output Like below line.
+output: { "line" : {Error Line}, "Rule": "Rule 26"   }
+{Error Line} is the detected line.
+Description:
+- BREAK-POINT statements are used for debugging during development but should not remain in production code.
+- They interrupt program execution and can cause unintended behavior in live systems.
+- To ensure code quality and avoid disruptions, all BREAK-POINT statements must be either removed or commented out before transport to QA or production environments.
+
+Best Practices:
+- Identify any instance of the statement:
+  - BREAK-POINT.
+  - BREAK <username>.
+- If found in development code, comment it out or delete it entirely.
+- Add a comment explaining removal, such as: "Commented By PwA  Rule 26"
+- BREAK statements should not be present in finalized transports.
+
+Example 1: Simple BREAK-POINT
+
+Input:
+BREAK-POINT.
+
+Output:
+*BREAK-POINT.                                 "Commented By PwA  Rule 26
+
+Example 2: BREAK with username
+
+Input:
+BREAK SAPUSER.
+
+Output:
+*BREAK SAPUSER.                                "Commented By PwA  Rule 26
+
+Example 3: Already commented BREAK-POINT (No Change)
+
+Input:
+*BREAK-POINT.
+
+Output:
+(No change needed — already commented out)
+
+Example 4: Conditional BREAK-POINT (development debugging, must be removed)
+
+Input:
+IF lv_debug = abap_true.
+  BREAK-POINT.
+ENDIF.
+
+Output:
+IF lv_debug = abap_true.
+*  BREAK-POINT.                                "Commented By PwA  Rule 26
+ENDIF.
+
+Summary Table:
+
+| Scenario                         | Action                                 |
+|----------------------------------|----------------------------------------|
+| `BREAK-POINT.` used              | Comment out or remove                  |
+| `BREAK <user>.` used             | Comment out or remove                  |
+| Already commented                | No change                              |
+| Inside conditional block         | Still must be commented or removed     |
+| Production/QA transports         | Must be free of BREAK statements       |
+| Commenting                       | Add "Commented By PwA  Rule 26" tag    |
+---
+
+Rule 27: Remove or Refactor Empty ELSE Blocks
+If this rule is detected 
+Do Not Remediate Code return Output Like below line.
+output: { "line" : {Error Line}, "Rule": "Rule 27"   }
+{Error Line} is the detected line.
+Description:
+- ELSE blocks in ABAP control structures (e.g., IF...ELSE...ENDIF) should not be left empty.
+- An empty ELSE block adds unnecessary complexity and reduces code readability.
+- If no logic is needed in the ELSE block, it should be removed completely or replaced with a meaningful comment or action.
+
+Best Practices:
+- Identify IF...ELSE...ENDIF blocks where the ELSE branch contains no statements or only a comment like "do nothing".
+- Refactor such code by:
+  - Removing the ELSE block entirely
+  - Consolidating logic in the IF branch, if possible
+  - Adding a meaningful comment only if truly necessary
+- Ensure no unintended logic is skipped or obscured due to the presence of an empty ELSE.
+
+Example 1: ELSE with no logic
+
+Input:
+IF lv_flag = abap_true.
+  PERFORM do_something.
+ELSE.
+ENDIF.
+
+Output:
+IF lv_flag = abap_true.
+  PERFORM do_something.
+ENDIF.                                       "Refactored By PwA  Rule 27
+
+Example 2: ELSE with only a comment
+
+Input:
+IF lv_found = abap_false.
+  CONTINUE.
+ELSE.
+* Do nothing
+ENDIF.
+
+Output:
+IF lv_found = abap_false.
+  CONTINUE.
+ENDIF.                                       "Refactored By PwA  Rule 27
+
+Example 3: Valid ELSE block (No Change)
+
+Input:
+IF sy-subrc = 0.
+  WRITE: 'Success'.
+ELSE.
+  WRITE: 'Failure'.
+ENDIF.
+
+Output:
+(No change needed — ELSE contains valid logic)
+
+Example 4: ELSE with nested block that is empty
+
+Input:
+IF lv_valid = abap_true.
+  lv_ready = abap_true.
+ELSE.
+  " No action required
+ENDIF.
+
+Output:
+IF lv_valid = abap_true.
+  lv_ready = abap_true.
+ENDIF.                                       "Refactored By PwA  Rule 27
+
+Summary Table:
+
+| Scenario                                  | Action                                      |
+|-------------------------------------------|---------------------------------------------|
+| ELSE block is completely empty            | Remove ELSE entirely                        |
+| ELSE block contains only a comment        | Remove or merge with IF                     |
+| ELSE contains valid executable logic      | Leave intact                                |
+| ELSE used for clarity but unnecessary     | Refactor for simplicity                     |
+| Commenting or refactoring tag             | Add "Refactored By PwA  Rule 27"            |
+---
+
+Rule 28: Ensure Proper Definition of VBTYP-Related Variables for S/4HANA Compatibility
+If this rule is detected 
+Do Not Remediate Code return Output Like below line.
+output: { "line" : {Error Line}, "Rule": "Rule 28"   }
+{Error Line} is the detected line.
+Description:
+- In ECC, the VBTYP domain (Sales Document Category) is defined with a length of 1 character.
+- In S/4HANA, this domain has been extended to 4 characters to accommodate new document types.
+- Any custom variable that holds VBTYP values must be defined using the correct domain or a compatible data element.
+- Failure to use the extended definition can lead to truncation, incorrect value comparison, inconsistent message generation, and file structure misalignment during data transfer or interface processing.
+
+Best Practices:
+- Detect variables that are intended to store VBTYP values but are defined using incorrect or shorter types (e.g., `TYPE c LENGTH 1`, `TYPE char1`, or implicit character types).
+- Refactor the definition of these variables using the appropriate dictionary reference, such as:
+  - `TYPE vbtyp`
+  - `TYPE <data element referencing domain VBTYP>`
+- Ensure the variable length is at least 4 characters if domain reference is not used directly.
+- Pay special attention to interface fields, message structures, file layouts, and MOVE statements where data loss might occur due to incorrect typing.
+
+Example 1: Incorrect Declaration
+
+Input:
+DATA lv_vbtyp TYPE c LENGTH 1.
+
+Output:
+*DATA lv_vbtyp TYPE c LENGTH 1.                  "Commented By PwA  Rule 28
+DATA lv_vbtyp TYPE vbtyp.                        "Remediated By PwA  Rule 28
+
+Example 2: Implicitly Incorrect Typing
+
+Input:
+DATA: lv_type(1) TYPE c.
+
+Output:
+*DATA: lv_type(1) TYPE c.                         "Commented By PwA  Rule 28
+DATA lv_type TYPE vbtyp.                          "Remediated By PwA  Rule 28
+
+Example 3: Correct VBTYP Declaration (No Change)
+
+Input:
+DATA lv_doc_category TYPE vbtyp.
+
+Output:
+(No change needed — already using domain reference)
+
+Example 4: MOVE to Short Variable (Potential Data Loss)
+
+Input:
+MOVE lv_vbtyp TO lv_short_char. " lv_short_char TYPE c LENGTH 1
+
+Output:
+*MOVE lv_vbtyp TO lv_short_char.                 "Commented By PwA  Rule 28
+MOVE lv_vbtyp TO lv_short_char_ext.              "Remediated By PwA  Rule 28 (Ensure length >= 4 or domain-based)
+
+Summary Table:
+
+| Scenario                                                  | Action                                            |
+|------------------------------------------------------------|---------------------------------------------------|
+| Variable used for VBTYP but defined as char1 or c(1)       | Redefine using vbtyp or appropriate domain type   |
+| Implicit character declaration for VBTYP usage             | Replace with domain-based data element            |
+| Move statement to a shorter variable                      | Comment and replace with length-compliant field   |
+| Already using TYPE vbtyp or domain-compliant type         | Leave unchanged                                   |
+| In interfaces, IDocs, file fields holding VBTYP            | Ensure they support 4-character domain            |
+| Commenting or remediation tag                              | Add "Commented By PwA  Rule 28" / "Remediated ..." |
+---
 
  Important Final Guidelines:
 - Maintain proper commenting and sequence.
