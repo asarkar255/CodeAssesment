@@ -1657,45 +1657,58 @@ If this rule is detected
 Do Not Remediate Code return Output Like below line.
 output: { "line" : {Error Line}, "Rule": "Rule 27"   }
 {Error Line} is the detected line.
+
 Description:
 - ELSE blocks in ABAP control structures (e.g., IF...ELSE...ENDIF) should not be left empty.
-- An empty ELSE block adds unnecessary complexity and reduces code readability.
+- This rule also applies when the IF...ELSE block is nested within LOOPs or CASE statements.
+- An empty ELSE block adds unnecessary nesting, reduces readability, and may indicate unfinished or misleading logic.
 - If no logic is needed in the ELSE block, it should be removed completely or replaced with a meaningful comment or action.
 
 Best Practices:
-- Identify IF...ELSE...ENDIF blocks where the ELSE branch contains no statements or only a comment like "do nothing".
-- Refactor such code by:
-  - Removing the ELSE block entirely
-  - Consolidating logic in the IF branch, if possible
-  - Adding a meaningful comment only if truly necessary
-- Ensure no unintended logic is skipped or obscured due to the presence of an empty ELSE.
+- Detect IF...ELSE...ENDIF blocks where the ELSE branch:
+  - Has no executable statement (is truly empty)
+  - Contains only a comment like "* do nothing"
+- Apply this detection even if the IF...ELSE...ENDIF block is:
+  - Nested inside LOOP...ENDLOOP
+  - Inside CASE...WHEN constructs
+  - Used within FORM, METHOD, or FUNCTION blocks
+- Remove the ELSE block entirely if it has no purpose.
+- Add "Refactored By PwA  Rule 27" after refactoring for traceability.
 
-Example 1: ELSE with no logic
-
-Input:
-IF lv_flag = abap_true.
-  PERFORM do_something.
-ELSE.
-ENDIF.
-
-Output:
-IF lv_flag = abap_true.
-  PERFORM do_something.
-ENDIF.                                       "Refactored By PwA  Rule 27
-
-Example 2: ELSE with only a comment
+Example 1: ELSE Inside LOOP (Empty)
 
 Input:
-IF lv_found = abap_false.
-  CONTINUE.
-ELSE.
-* Do nothing
-ENDIF.
+LOOP AT lt_data INTO ls_data.
+  IF ls_data-flag = abap_true.
+    PERFORM process_flag.
+  ELSE.
+  ENDIF.
+ENDLOOP.
 
 Output:
-IF lv_found = abap_false.
-  CONTINUE.
-ENDIF.                                       "Refactored By PwA  Rule 27
+LOOP AT lt_data INTO ls_data.
+  IF ls_data-flag = abap_true.
+    PERFORM process_flag.
+  ENDIF.                                          "Refactored By PwA  Rule 27
+ENDLOOP.
+
+Example 2: ELSE Inside LOOP with Only Comment
+
+Input:
+LOOP AT lt_data INTO ls_data.
+  IF ls_data-active = abap_true.
+    CONTINUE.
+  ELSE.
+*   Do nothing
+  ENDIF.
+ENDLOOP.
+
+Output:
+LOOP AT lt_data INTO ls_data.
+  IF ls_data-active = abap_true.
+    CONTINUE.
+  ENDIF.                                          "Refactored By PwA  Rule 27
+ENDLOOP.
 
 Example 3: Valid ELSE block (No Change)
 
@@ -1709,29 +1722,34 @@ ENDIF.
 Output:
 (No change needed — ELSE contains valid logic)
 
-Example 4: ELSE with nested block that is empty
+Example 4: Nested IF...ELSE with Empty ELSE
 
 Input:
 IF lv_valid = abap_true.
-  lv_ready = abap_true.
-ELSE.
-  " No action required
+  IF lv_ready = abap_true.
+    lv_status = 'X'.
+  ELSE.
+  ENDIF.
 ENDIF.
 
 Output:
 IF lv_valid = abap_true.
-  lv_ready = abap_true.
-ENDIF.                                       "Refactored By PwA  Rule 27
+  IF lv_ready = abap_true.
+    lv_status = 'X'.
+  ENDIF.                                          "Refactored By PwA  Rule 27
+ENDIF.
 
 Summary Table:
 
-| Scenario                                  | Action                                      |
-|-------------------------------------------|---------------------------------------------|
-| ELSE block is completely empty            | Remove ELSE entirely                        |
-| ELSE block contains only a comment        | Remove or merge with IF                     |
-| ELSE contains valid executable logic      | Leave intact                                |
-| ELSE used for clarity but unnecessary     | Refactor for simplicity                     |
-| Commenting or refactoring tag             | Add "Refactored By PwA  Rule 27"            |
+| Scenario                                          | Action                                         |
+|--------------------------------------------------|------------------------------------------------|
+| ELSE block is completely empty                   | Remove ELSE entirely                          |
+| ELSE contains only a comment                     | Remove or merge with IF                       |
+| ELSE inside LOOP or CASE with no logic           | Remove as in flat structure                   |
+| Nested ELSE block with no logic                  | Remove from nested construct                  |
+| ELSE contains valid logic                        | Leave intact                                  |
+| Commenting or refactoring tag                    | Add "Refactored By PwA  Rule 27"              |
+
 ---
 
 Rule 28: Ensure Proper Definition of VBTYP-Related Variables for S/4HANA Compatibility
